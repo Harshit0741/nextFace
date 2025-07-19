@@ -22,8 +22,10 @@ export default function FaceTracker() {
       const ctx = outputCanvasRef.current?.getContext('2d');
       const draw = () => {
         if (ctx && videoRef.current && canvasRef.current) {
-          ctx.drawImage(videoRef.current, 0, 0, 940, 650);
-          ctx.drawImage(canvasRef.current, 0, 0, 940, 650);
+          const width = videoRef.current.videoWidth || 940;
+          const height = videoRef.current.videoHeight || 650;
+          ctx.drawImage(videoRef.current, 0, 0, width, height);
+          ctx.drawImage(canvasRef.current, 0, 0, width, height);
         }
         requestAnimationFrame(draw);
       };
@@ -47,7 +49,10 @@ export default function FaceTracker() {
         .withFaceExpressions();
 
       const canvas = canvasRef.current!;
-      const displaySize = { width: 940, height: 650 };
+      const displaySize = {
+        width: videoRef.current.videoWidth || 940,
+        height: videoRef.current.videoHeight || 650,
+      };
       faceapi.matchDimensions(canvas, displaySize);
 
       const resized = faceapi.resizeResults(detections, displaySize);
@@ -93,36 +98,32 @@ export default function FaceTracker() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center justify-start">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">🎥 Face Tracker</h1>
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 flex flex-col items-center justify-start">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6 text-center">
+        🎥 Face Tracker
+      </h1>
 
-      <div className="relative w-[940px] h-[650px] border-4 border-blue-300 rounded-lg shadow-lg overflow-hidden">
+      <div className="relative w-full max-w-[940px] aspect-video border-4 border-blue-300 rounded-lg shadow-lg overflow-hidden">
         <video
           ref={videoRef}
           autoPlay
           muted
-          width="940"
-          height="650"
-          className="absolute top-0 left-0"
+          className="absolute top-0 left-0 w-full h-full object-cover"
         />
         <canvas
           ref={canvasRef}
-          width="940"
-          height="650"
-          className="absolute top-0 left-0"
+          className="absolute top-0 left-0 w-full h-full"
         />
         <canvas
           ref={outputCanvasRef}
-          width="940"
-          height="650"
           className="hidden"
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 w-full flex justify-center">
         <button
           onClick={handleRecordToggle}
-          className={`px-6 py-2 text-white rounded-lg shadow transition-all duration-300 ${
+          className={`px-6 py-2 text-white text-sm sm:text-base rounded-lg shadow transition-all duration-300 ${
             isRecording
               ? 'bg-red-600 hover:bg-red-700'
               : 'bg-green-600 hover:bg-green-700'

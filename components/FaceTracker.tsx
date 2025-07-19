@@ -1,4 +1,4 @@
-'use client'; 
+'use client';
 
 import { useRef, useEffect, useState } from 'react';
 import * as faceapi from '@vladmandic/face-api';
@@ -8,6 +8,7 @@ export default function FaceTracker() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const outputCanvasRef = useRef<HTMLCanvasElement>(null);
   const [recorder, setRecorder] = useState<MediaRecorder | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
     startVideo();
@@ -79,31 +80,55 @@ export default function FaceTracker() {
 
     mediaRecorder.start();
     setRecorder(mediaRecorder);
+    setIsRecording(true);
   };
 
   const stopRecording = () => {
     if (recorder) recorder.stop();
+    setIsRecording(false);
+  };
+
+  const handleRecordToggle = () => {
+    isRecording ? stopRecording() : startRecording();
   };
 
   return (
-    <div>
-      <h1>Face Tracker</h1>
-      <div style={{ position: 'relative', width: 940, height: 650 }}>
+    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center justify-start">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">🎥 Face Tracker</h1>
+
+      <div className="relative w-[940px] h-[650px] border-4 border-blue-300 rounded-lg shadow-lg overflow-hidden">
         <video
           ref={videoRef}
           autoPlay
           muted
           width="940"
           height="650"
-          style={{ position: 'absolute' }}
+          className="absolute top-0 left-0"
         />
-        <canvas ref={canvasRef} width="940" height="650" style={{ position: 'absolute' }} />
-        <canvas ref={outputCanvasRef} width="940" height="650" style={{ display: 'none' }} />
+        <canvas
+          ref={canvasRef}
+          width="940"
+          height="650"
+          className="absolute top-0 left-0"
+        />
+        <canvas
+          ref={outputCanvasRef}
+          width="940"
+          height="650"
+          className="hidden"
+        />
       </div>
-      <div style={{ marginTop: 16 }}>
-        <button onClick={startRecording}>Start Recording</button>
-        <button onClick={stopRecording} style={{ marginLeft: 10 }}>
-          Stop & Download
+
+      <div className="mt-6">
+        <button
+          onClick={handleRecordToggle}
+          className={`px-6 py-2 text-white rounded-lg shadow transition-all duration-300 ${
+            isRecording
+              ? 'bg-red-600 hover:bg-red-700'
+              : 'bg-green-600 hover:bg-green-700'
+          }`}
+        >
+          {isRecording ? 'Stop & Download' : 'Start Recording'}
         </button>
       </div>
     </div>
